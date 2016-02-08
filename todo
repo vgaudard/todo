@@ -1,0 +1,39 @@
+#!/bin/bash
+
+
+unset showLineNumbers
+if [ $# -eq 0 ] || [ "$1" = "-n" ]; then
+    if [ -f ~/.todo ] && [ -s ~/.todo ]; then
+        echo "You have things to do: "
+        if [ "$1" = "-n" ]; then
+            showLineNumbers=0
+        fi
+        i=0
+        while read l ; do
+            if [ $showLineNumbers ]; then
+                echo -e "\t($i) - $l"
+                i=$(expr $i + 1)
+            else
+                echo -e "\t- $l"
+            fi
+        done <  ~/.todo
+    fi
+elif [ "$1" = "-s" ]; then # Delete items of indices passed in arguments
+    if [ -f ~/.todo ]; then
+        shift
+        i=0
+        touch ~/.todotmp
+        while read l; do
+            if [ "$i" = "$1" ]; then
+                shift
+            else
+                echo $l >> ~/.todotmp
+            fi
+            i=$(expr $i + 1)
+        done < ~/.todo
+        mv ~/.todotmp ~/.todo
+    fi
+else
+    echo $@ >> ~/.todo
+fi
+
